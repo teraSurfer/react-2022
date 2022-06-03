@@ -4,8 +4,10 @@ import { IntlProvider } from "react-intl";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import Navbar from "../components/navbar/navbar";
 import { localeText } from "../nls";
+import Home from "./home";
 
-const Home = React.lazy(() => import("./home"));
+const Login = React.lazy(() => import("./auth/login"));
+const Register = React.lazy(() => import("./auth/register"));
 
 const Pages = () => {
   const user = {
@@ -22,6 +24,8 @@ const Pages = () => {
           <Navbar user={user} />
           <Routes>
             <Route path="/" element={<Home />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
           </Routes>
         </BrowserRouter>
       </Suspense>
