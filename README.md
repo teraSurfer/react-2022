@@ -19,3 +19,11 @@
 4. Layouts with composition pattern
 5. Custom hooks
 6. Validations
+
+
+### Day 3 Topics
+
+1. react-hook-form
+2. yup
+3. 
+

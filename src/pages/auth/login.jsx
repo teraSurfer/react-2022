@@ -1,53 +1,41 @@
 import React from "react";
-import {
-  FormGroup,
-  FormLabel,
-  FormText,
-  FormControl,
-  Container,
-} from "react-bootstrap";
+import { FormGroup, FormLabel, FormControl, Container, Form } from "react-bootstrap";
 import FormLayout from "../../components/form-layout/formLayout";
-import { useUserAuthForm } from "../../hooks/useUserAuthForm";
-import { isValid } from "../../util/validator";
+import * as yup from "yup";
+
+const schema = yup.object({
+  email: yup.string().email().required("Required"),
+  password: yup.string().required("Required").min(6)
+});
 
 const Login = (props) => {
-  const { formState, actions } = useUserAuthForm();
 
-  function handleFormSubmit() {
-    console.log(formState);
+  function handleFormSubmit(formState) {
+    console.log(formState); //api call
   }
-
 
   return (
     <Container>
       <FormLayout
         title="Login"
         primaryButtonTitle="Login"
+        validationSchema={schema}
         onPrimaryAction={handleFormSubmit}
       >
-        <FormGroup>
-          <FormLabel>Email</FormLabel>
-          <FormControl
-            isValid={
-              formState.email.initialValue !== formState.email.value &&
-              isValid(formState.email.errors)
-            }
-            onChange={(e) => actions.updateUserEmail(e.target.value)}
-          ></FormControl>
-          <FormText>
-            <ul>
-              {(formState.email.initialValue !== formState.email.value) && formState.email.errors.map((error) => (
-                <li>{`${error.validation} - ${error.error}`}</li>
-              ))}
-            </ul>
-          </FormText>
-        </FormGroup>
-        <FormGroup>
-          <FormLabel>Password</FormLabel>
-          <FormControl
-            onChange={(e) => actions.updatePassword(e.target.value)}
-          ></FormControl>
-        </FormGroup>
+        {(register, errors) => (
+          <>
+            <FormGroup>
+              <FormLabel>Email</FormLabel>
+              <FormControl {...register('email')}></FormControl>
+              {errors.email && <Form.Text>{errors.email.message}</Form.Text>}
+            </FormGroup>
+            <FormGroup>
+              <FormLabel>Password</FormLabel>
+              <FormControl {...register('password')}></FormControl>
+              {errors.password && <Form.Text>{errors.password.message}</Form.Text>}
+            </FormGroup>
+          </>
+        )}
       </FormLayout>
     </Container>
   );

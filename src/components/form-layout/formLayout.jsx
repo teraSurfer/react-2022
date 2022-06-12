@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import PropTypes from "prop-types";
-import { Button, Form, Row } from 'react-bootstrap';
+import { Button, Card, Form, Row } from "react-bootstrap";
+import { useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
 
 // Dumb component.
 const FormLayout = ({
@@ -11,26 +13,44 @@ const FormLayout = ({
   onSecondaryAction,
   children,
   preventDefault,
+  validationSchema,
 }) => {
-    const [validated, setValidated] = useState(false);
-    function handleSubmit(evt) {
-        if(preventDefault) {
-            evt.preventDefault();
-        }
-        onPrimaryAction();
-        setValidated(true);
-    }
+  const { formState, register, handleSubmit } = useForm({
+    mode: "onBlur",
+    resolver: yupResolver(validationSchema),
+  });
 
-    return (
-        <Form noValidate validated={validated} onSubmit={handleSubmit}>
-            <div>{title}</div>
-            {children}
-            <Row className="d-flex justify-content-between">
-                <Button type="submit">{primaryButtonTitle}</Button>
-                {secondaryButtonTitle && <Button type="button" onClick={onSecondaryAction}>{secondaryButtonTitle}</Button>}
-            </Row>
+  console.log(formState.errors);
+
+  function handlePrimaryAction(result) {
+    console.log(result, formState);
+    if(typeof onPrimaryAction === "function") {
+      onPrimaryAction(result);
+    }
+  }
+
+  return (
+    <Card className="mt-4">
+      <Card.Header className="bg-dark text-white">
+        <h5 className="m-0">{title}</h5>
+      </Card.Header>
+      <Card.Body>
+        <Form onSubmit={handleSubmit(handlePrimaryAction)}>
+          {children(register, formState.errors)}
+          <Row className="d-flex justify-content-between">
+            <Button type="submit" variant="primary">
+              {primaryButtonTitle}
+            </Button>
+            {secondaryButtonTitle && (
+              <Button type="button" onClick={onSecondaryAction}>
+                {secondaryButtonTitle}
+              </Button>
+            )}
+          </Row>
         </Form>
-    )
+      </Card.Body>
+    </Card>
+  );
 };
 
 FormLayout.propTypes = {
@@ -40,7 +60,8 @@ FormLayout.propTypes = {
   preventDefault: PropTypes.bool,
   onPrimaryAction: PropTypes.func,
   onSecondaryAction: PropTypes.func,
-  children: PropTypes.arrayOf(PropTypes.node).isRequired,
+  children: PropTypes.func.isRequired,
+  validationSchema: PropTypes.object,
 };
 
 FormLayout.defaultProps = {
